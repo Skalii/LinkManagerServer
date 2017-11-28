@@ -61,15 +61,21 @@ public class ServerHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
             try {
                 quertResult = Server.getResult(message);
-            } catch (SQLException e) {
+                if (quertResult.length == 0) {
+                    quertResult = new String[][]{{null}};
+                    queryState = "null";
+                }
+            } catch (SQLException | ArrayIndexOutOfBoundsException e) {
                 quertResult = new String[][]{{null}};
                 queryState = "false";
             }
+
 
             for (Channel channel : channels) {
                 if (channel == incoming) {
                     Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query state: " + queryState);
                     Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | result size: " + quertResult.length);
+                    channel.write("[SERVER] - accepted the query: " + message + "\r\n");
                     channel.write("[SERVER] - result size: " + quertResult.length + "\r\n");
 
                     for (String[] record : quertResult) {

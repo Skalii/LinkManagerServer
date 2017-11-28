@@ -7,6 +7,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
+import org.codehaus.plexus.util.StringUtils;
 
 import java.sql.SQLException;
 
@@ -47,30 +48,36 @@ public class Server implements Runnable {
     static String[][] getResult(String query) throws SQLException {
         String[][] result = new String[0][];
 
-        String _query = query;
-        int index = 0;
+        String _query = query, parameter = "0";
+        String[] parameters = new String[0];
 
-        if (_query.startsWith("get_category_")
-                || _query.startsWith("get_list_connects_")
-                || _query.startsWith("get_list_from_section_")
-                || _query.startsWith("get_category_from_")
-                || _query.startsWith("get_bookmarks_from_")
-                || _query.startsWith("get_bookmarks_ids_from_")) {
-            index = Integer.parseInt(_query.substring(_query.lastIndexOf("_") + 1));
-            _query = _query.substring(0, _query.lastIndexOf("_"));
+        if (_query.startsWith("get_category_p-")
+                || _query.startsWith("get_list_connects_p-")
+                || _query.startsWith("get_list_from_section_p-")
+                || _query.startsWith("get_category_from_p-")
+                || _query.startsWith("get_bookmarks_from_p-")
+                || _query.startsWith("get_bookmarks_ids_from_p-")
+                || _query.startsWith("get_login_p-")) {
+            parameter = _query.substring(_query.lastIndexOf("_") + 3);
+            _query = _query.substring(0, _query.lastIndexOf("_") + 2);
+
+        } else if (_query.startsWith("get_pass_login_c-")
+                || _query.startsWith("get_profile_c-")) {
+            parameters = _query.substring(_query.lastIndexOf("_c-") + 3).split(";");
+            _query = _query.substring(0, _query.lastIndexOf("_c-") + 2);
         }
 
         switch (_query) {
 
             case "get_sections":
-                result = db.query(true, "SELECT title from sections");
+                result = db.query(true, "SELECT title FROM sections");
                 break;
 
-            case "get_category":
+            case "get_category_p":
                 result = db.query(true,
                         "SELECT c.title " +
                                 "FROM categories c, sections s " +
-                                "WHERE s.id_section = " + index +
+                                "WHERE s.id_section = " + parameter +
                                 " AND c.id_category = ANY(s.ids_category)");
                 break;
 
@@ -78,51 +85,83 @@ public class Server implements Runnable {
                 result = db.query(true, "SELECT count(link) FROM sites");
                 break;
 
-            case "get_list_connects":
+            case "get_list_connects_p":
                 result = db.query(true,
                         "SELECT si.* " +
                                 "FROM sites si, sections se " +
-                                "WHERE se.id_section = " + index +
+                                "WHERE se.id_section = " + parameter +
                                 " AND si.id_category = ANY(se.ids_category)");
                 break;
 
-            case "get_list_from_section":
+            case "get_list_from_section_p":
                 result = db.query(true,
                         "SELECT si.* " +
                                 "FROM sites si, sections se " +
-                                "WHERE se.id_section = " + index +
+                                "WHERE se.id_section = " + parameter +
                                 " AND si.id_category = ANY(se.ids_category)");
                 break;
 
-            case "get_category_from":
+            case "get_category_from_p":
                 result = db.query(true,
                         "SELECT title " +
                                 "FROM categories " +
-                                "WHERE id_category = " + index);
+                                "WHERE id_category = " + parameter);
+                break;
+
+            case "get_login_p":
+                result = db.query(true,
+                        "SELECT login " +
+                                "FROM profiles " +
+                                "WHERE login = '" + parameter + "'");
+                break;
+
+            case "get_pass_login_c":
+                for (int i = 0; i < parameters.length; i++) {
+                    if (parameters[i].startsWith("L")) {
+                        parameters[i] = parameters[i].replace("L", "login");
+                    } else if (parameters[i].startsWith("P")) {
+                        parameters[i] = parameters[i].replace("P", "password");
+                    }
+                }
+                result = db.query(true,
+                        "SELECT password " +
+                                "FROM profiles " +
+                                "WHERE " + StringUtils.join(parameters, " AND "));
+                break;
+
+            case "get_profile_c":
+                for (int i = 0; i < parameters.length; i++) {
+                    if (parameters[i].startsWith("L")) {
+                        parameters[i] = parameters[i].replace("L", "login");
+                    } else if (parameters[i].startsWith("P")) {
+                        parameters[i] = parameters[i].replace("P", "password");
+                    }
+                }
+                result = db.query(true,
+                        "SELECT * " +
+                                "FROM profiles " +
+                                "WHERE " + StringUtils.join(parameters, " AND "));
+                break;
+
+            case "get_bookmarks_from_p":
+                result = db.query(true,
+                        "SELECT s.link " +
+                                "FROM sites s, profiles p " +
+                                "WHERE p.id_profile = " + parameter +
+                                " AND s.id_site = ANY(p.ids_bookmark)");
+                break;
+
+            case "get_bookmarks_ids_from_p":
+                result = db.query(true,
+                        "SELECT ids_bookmark " +
+                                "FROM profiles " +
+                                "WHERE id_profile = " + parameter);
                 break;
 
             case "get_logins_emails":
                 result = db.query(true, "SELECT login, email FROM profiles");
                 break;
 
-            case "get_profiles":
-                result = db.query(true, "SELECT * FROM profiles");
-                break;
-
-            case "get_bookmarks_from":
-                result = db.query(true,
-                        "SELECT s.link " +
-                                "FROM sites s, profiles p " +
-                                "WHERE p.id_profile = " + index +
-                                " AND s.id_site = ANY(p.ids_bookmark)");
-                break;
-
-            case "get_bookmarks_ids_from":
-                result = db.query(true,
-                        "SELECT ids_bookmark " +
-                                "FROM profiles " +
-                                "WHERE id_profile = " + index);
-                break;
         }
 
         return result;

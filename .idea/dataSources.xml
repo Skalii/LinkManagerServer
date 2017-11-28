@@ -11,5 +11,14 @@
         <property name="sslmode" value="require" />
       </driver-properties>
     </data-source>
+    <data-source source="LOCAL" name="link_manager@localhost" uuid="3535af2b-9493-4ff2-8c60-654cb062df55">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/link_manager</jdbc-url>
+      <driver-properties>
+        <property name="ApplicationName" value="DataGrip" />
+      </driver-properties>
+    </data-source>
   </component>
 </project>
