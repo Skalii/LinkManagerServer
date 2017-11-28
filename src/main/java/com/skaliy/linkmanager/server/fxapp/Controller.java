@@ -36,7 +36,7 @@ public class Controller {
                 dataConnection = file.read();
             } catch (FileNotFoundException e) {
                 textAreaLogs.appendText("Файл с параметрами подключения к БД не существует!\n" +
-                        "Создайте файл \"server.txt\" со значениями host, user, password.");
+                        "Создайте файл \"server.txt\" со значениями host, user, password.\n");
                 return;
             }
 
