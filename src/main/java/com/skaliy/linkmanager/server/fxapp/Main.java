@@ -14,8 +14,9 @@ public class Main extends Application {
         stage = primaryStage;
 
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
-        primaryStage.setTitle("Управление сервером");
+        primaryStage.setTitle("Управление сервером \"LinkManager\"");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
+
 }
