@@ -57,7 +57,8 @@ public class Server implements Runnable {
                 || _query.startsWith("get_category_from_p-")
                 || _query.startsWith("get_bookmarks_from_p-")
                 || _query.startsWith("get_bookmarks_ids_from_p-")
-                || _query.startsWith("get_login_p-")) {
+                || _query.startsWith("get_login_p-")
+                || _query.startsWith("get_email_p-")) {
             parameter = _query.substring(_query.lastIndexOf("_") + 3);
             _query = _query.substring(0, _query.lastIndexOf("_") + 2);
 
@@ -113,6 +114,13 @@ public class Server implements Runnable {
                         "SELECT login " +
                                 "FROM profiles " +
                                 "WHERE login = '" + parameter + "'");
+                break;
+
+            case "get_email_p":
+                result = db.query(true,
+                        "SELECT email " +
+                                "FROM profiles " +
+                                "WHERE email = '" + parameter + "'");
                 break;
 
             case "get_pass_login_c":
