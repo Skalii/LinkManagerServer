@@ -92,6 +92,7 @@ public class Controller {
                 server[0].getDb().closeConnection();
                 server[0] = null;
             }
+
             if (thread[0] != null) {
                 thread[0].stop();
                 thread[0] = null;
