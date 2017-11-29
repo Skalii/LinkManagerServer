@@ -6,23 +6,23 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="552.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.skaliy.linkmanager.server.fxapp.Controller">
+<AnchorPane prefHeight="600.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.skaliy.linkmanager.server.fxapp.Controller">
     <children>
-        <Label layoutX="260.0" layoutY="15.0" text="Hi!">
+        <Label layoutX="335.0" layoutY="10.0" prefHeight="95.0" text="Hi!">
             <font>
                 <Font size="64.0" />
             </font>
         </Label>
-        <Button fx:id="buttonStart" layoutX="165.0" layoutY="115.0" mnemonicParsing="false" prefWidth="270.0" text="Запустить">
+        <Button fx:id="buttonStart" layoutX="240.0" layoutY="115.0" mnemonicParsing="false" prefWidth="270.0" text="Запустить">
             <font>
                 <Font name="Calibri" size="36.0" />
             </font>
         </Button>
-        <Label fx:id="labelStatus" alignment="CENTER" layoutX="10.0" layoutY="200.0" prefHeight="55.0" prefWidth="580.0" text="Состояние">
+        <Label fx:id="labelStatus" alignment="CENTER" layoutX="10.0" layoutY="190.0" prefHeight="55.0" prefWidth="730.0" text="Состояние">
             <font>
                 <Font size="36.0" />
             </font>
         </Label>
-        <TextArea fx:id="textAreaLogs" layoutX="10.0" layoutY="280.0" prefHeight="260.0" prefWidth="580.0" />
+        <TextArea fx:id="textAreaLogs" editable="false" layoutX="10.0" layoutY="255.0" prefHeight="335.0" prefWidth="730.0" />
     </children>
 </AnchorPane>

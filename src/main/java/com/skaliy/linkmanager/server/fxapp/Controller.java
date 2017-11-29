@@ -1,6 +1,6 @@
 package com.skaliy.linkmanager.server.fxapp;
 
-import com.skaliy.linkmanager.server.connection.DBConnectionFile;
+import com.skaliy.linkmanager.server.connection.FileConnection;
 import com.skaliy.linkmanager.server.server.Server;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -15,7 +15,7 @@ import java.sql.SQLException;
 public class Controller {
 
     @FXML
-    private TextArea textAreaLogs;
+    private static final TextArea textAreaLogs = new TextArea();
 
     @FXML
     private Label labelStatus;
@@ -24,18 +24,21 @@ public class Controller {
     private Button buttonStart;
 
     public void initialize() {
+
+        textAreaLogs.appendText("1");
+
         final Server[] server = {null};
         final Thread[] thread = {null};
 
         buttonStart.setOnAction(event -> {
 
-            DBConnectionFile file = new DBConnectionFile("db.txt");
+            FileConnection file = new FileConnection("db.txt");
             BufferedReader dataConnection;
 
             try {
                 dataConnection = file.read();
             } catch (FileNotFoundException e) {
-                textAreaLogs.appendText("Файл с параметрами подключения к БД не существует!\n" +
+                addLog("Файл с параметрами подключения к БД не существует!\n" +
                         "Создайте файл \"server.txt\" со значениями host, user, password.\n");
                 return;
             }
@@ -48,13 +51,11 @@ public class Controller {
                             dataConnection.readLine(),
                             dataConnection.readLine());
                 } catch (IOException | SQLException | ClassNotFoundException e) {
-                    textAreaLogs.appendText("Упс! Что-то пошло не так.\n"
+                    addLog("Упс! Что-то пошло не так.\n"
                             + "Проверьте параметы подключения к БД в файле \"server.txt\"!\n");
                     server[0] = null;
                     return;
                 }
-
-                server[0].setTextAreaLogs(textAreaLogs);
 
                 thread[0] = new Thread(server[0]);
                 thread[0].start();
@@ -63,7 +64,7 @@ public class Controller {
                     if (server[0].getDb().isConnected())
                         break;
                     else try {
-                        Thread.sleep(50);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -71,7 +72,7 @@ public class Controller {
 
                 labelStatus.setText("Подключение установлено!");
                 buttonStart.setText("Отключить");
-                textAreaLogs.appendText("[SERVER] - start\n");
+                addLog("[SERVER] - start\n");
 
             } else {
                 server[0].getDb().closeConnection();
@@ -80,12 +81,13 @@ public class Controller {
                 thread[0] = null;
                 buttonStart.setText("Запустить");
                 labelStatus.setText("Соединение закрыто!");
-                textAreaLogs.appendText("[SERVER] - shutdown\n");
+                addLog("[SERVER] - shutdown\n");
             }
 
         });
 
-        Main.stage.setOnCloseRequest(event -> {
+        Main.getStage().setOnCloseRequest(event -> {
+
             if (server[0] != null) {
                 server[0].getDb().closeConnection();
                 server[0] = null;
@@ -94,7 +96,13 @@ public class Controller {
                 thread[0].stop();
                 thread[0] = null;
             }
+
         });
+
+    }
+
+    public static void addLog(String log) {
+        Controller.textAreaLogs.appendText(log + "\n");
     }
 
 }

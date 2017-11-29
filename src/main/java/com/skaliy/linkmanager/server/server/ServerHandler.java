@@ -1,5 +1,6 @@
 package com.skaliy.linkmanager.server.server;
 
+import com.skaliy.linkmanager.server.fxapp.Controller;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
@@ -16,18 +17,14 @@ public class ServerHandler extends ChannelInboundMessageHandlerAdapter<String> {
     @Override
     public void handlerAdded(ChannelHandlerContext channelHandlerContext) throws Exception {
         Channel incoming = channelHandlerContext.channel();
-
-        Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | has joined!");
-
+        Controller.addLog("[CLIENT] - " + incoming.remoteAddress() + " | has joined!");
         channels.add(channelHandlerContext.channel());
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext channelHandlerContext) throws Exception {
         Channel incoming = channelHandlerContext.channel();
-
-        Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | has left!");
-
+        Controller.addLog("[CLIENT] - " + incoming.remoteAddress() + " | has left!");
         channels.remove(channelHandlerContext.channel());
     }
 
@@ -39,14 +36,14 @@ public class ServerHandler extends ChannelInboundMessageHandlerAdapter<String> {
 //            String bool = message.substring(0, message.indexOf(":")),
             message = message.substring(message.indexOf(":") + 1);
 
-            Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query: " + message);
+            Controller.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query: " + message);
 
             String[] values = message.substring(message.indexOf(",") + 1).split(",");
             boolean queryResult = Server.setResult(message, values);
 
             for (Channel channel : channels) {
                 if (channel == incoming) {
-                    Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query state: " + queryResult);
+                    Controller.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query state: " + queryResult);
                     channel.write("[SERVER] - query state: " + "\r\n");
                     channel.write("[" + queryResult + "]" + "\r\n");
                 }
@@ -57,7 +54,7 @@ public class ServerHandler extends ChannelInboundMessageHandlerAdapter<String> {
             String[][] quertResult;
             String queryState = "true";
 
-            Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query: " + message);
+            Controller.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query: " + message);
 
             try {
                 quertResult = Server.getResult(message);
@@ -70,20 +67,22 @@ public class ServerHandler extends ChannelInboundMessageHandlerAdapter<String> {
                 queryState = "false";
             }
 
-
             for (Channel channel : channels) {
+
                 if (channel == incoming) {
-                    Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query state: " + queryState);
-                    Server.addLog("[CLIENT] - " + incoming.remoteAddress() + " | result size: " + quertResult.length);
+                    Controller.addLog("[CLIENT] - " + incoming.remoteAddress() + " | query state: " + queryState);
+                    Controller.addLog("[CLIENT] - " + incoming.remoteAddress() + " | result size: " + quertResult.length);
                     channel.write("[SERVER] - accepted the query: " + message + "\r\n");
                     channel.write("[SERVER] - result size: " + quertResult.length + "\r\n");
 
                     for (String[] record : quertResult) {
-                        Server.addLog(Arrays.toString(record));
+                        Controller.addLog(Arrays.toString(record));
                         channel.write(Arrays.toString(record) + "\r\n");
                     }
                 }
+
             }
+
         }
     }
 

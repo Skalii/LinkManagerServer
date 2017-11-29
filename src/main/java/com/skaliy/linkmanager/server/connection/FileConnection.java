@@ -2,11 +2,11 @@ package com.skaliy.linkmanager.server.connection;
 
 import java.io.*;
 
-public class DBConnectionFile {
+public class FileConnection {
 
     private File file;
 
-    public DBConnectionFile(String path) {
+    public FileConnection(String path) {
         file = new File(path);
     }
 

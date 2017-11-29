@@ -5,8 +5,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
 import org.codehaus.plexus.util.StringUtils;
 
 import java.sql.SQLException;
@@ -14,10 +12,7 @@ import java.sql.SQLException;
 public class Server implements Runnable {
 
     private final int port;
-    static PostgreSQL db;
-
-    @FXML
-    static TextArea textAreaLogs;
+    private static PostgreSQL db;
 
     public Server(int port, String url, String user, String password) throws SQLException, ClassNotFoundException {
         this.port = port;
@@ -46,10 +41,10 @@ public class Server implements Runnable {
     }
 
     static String[][] getResult(String query) throws SQLException {
-        String[][] result = new String[0][];
 
         String _query = query, parameter = "0";
         String[] parameters = new String[0];
+        String[][] result = new String[0][];
 
         if (_query.startsWith("get_category_p-")
                 || _query.startsWith("get_list_connects_p-")
@@ -181,44 +176,37 @@ public class Server implements Runnable {
 
         String _query = query.substring(0, query.indexOf(","));
 
-        switch (_query) {
+        try {
+            switch (_query) {
 
-            case "add_profile":
-                try {
+                case "add_profile":
                     db.query(false,
                             "INSERT INTO profiles(login, password, last_name, first_name, email) " +
                                     "VALUES('" + values[0] + "', '" + values[1] + "', '" +
                                     values[2] + "', '" + values[3] + "', '" + values[4] + "')");
-                } catch (SQLException e) {
-                    result = false;
-                }
-                break;
+                    break;
 
-            case "add_bookmark":
-                try {
+                case "add_bookmark":
                     db.query(false,
                             "INSERT INTO bookmarks VALUES (" +
                                     values[0] + ", " +
                                     "(SELECT id_site " +
                                     "FROM sites " +
                                     "WHERE link = '" + values[1] + "')" + ")");
-                } catch (SQLException e) {
-                    result = false;
-                }
-                break;
+                    break;
 
-            case "delete_bookmark":
-                try {
+                case "delete_bookmark":
                     db.query(false,
                             "DELETE FROM bookmarks " +
                                     "WHERE id_profile = " + values[0] +
                                     " AND id_site = (SELECT id_site " +
                                     "FROM sites " +
                                     "WHERE link = '" + values[1] + "')");
-                } catch (SQLException e) {
-                    result = false;
-                }
-                break;
+                    break;
+
+            }
+        } catch (SQLException e) {
+            result = false;
         }
 
         return result;
@@ -226,14 +214,6 @@ public class Server implements Runnable {
 
     public PostgreSQL getDb() {
         return db;
-    }
-
-    public void setTextAreaLogs(TextArea textAreaLogs) {
-        Server.textAreaLogs = textAreaLogs;
-    }
-
-    static void addLog(String log) {
-        Server.textAreaLogs.appendText(log + "\n");
     }
 
 }

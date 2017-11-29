@@ -12,7 +12,7 @@ public class ServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final int port;
 
-    public ServerInitializer(int port) {
+    ServerInitializer(int port) {
         this.port = port;
     }
 
